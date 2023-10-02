@@ -1,0 +1,63 @@
+ important----->First, install the lodash.memoize package if you haven't already:
+
+///////////lodash.memoize
+
+
+
+const express = require('express');
+const axios = require('axios');
+const _ = require('lodash');
+const memoize = require('lodash.memoize'); 
+
+const app = express();
+const port = 3000;
+
+// Middleware to fetch data from the third-party blog API
+app.use(async (req, res, next) => {
+  try {
+    const response = await axios.get('URL_TO_THIRD_PARTY_BLOG_API');
+    req.blogData = response.data; // Store the blog data in the request object
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+const analyzeBlogData = (blogData) => {
+  // Custom analytics logic here (unchanged)
+};
+
+const memoizedAnalyzeBlogData = memoize(analyzeBlogData, { maxAge: 60000 }); // Cache results for 60 seconds
+
+app.use((req, res, next) => {
+  req.analytics = memoizedAnalyzeBlogData(req.blogData);
+  next();
+});
+
+// Blog search endpoint
+const searchBlog = (blogData, query) => {
+  // Custom search logic is same as brfore it will not chnaged
+};
+
+const memoizedSearchBlog = memoize(searchBlog, { maxAge: 60000 }); // Cache results for 60 seconds
+
+app.get('/search', (req, res) => {
+  const query = req.query.q;
+  const blogData = req.blogData;
+
+  const searchResults = memoizedSearchBlog(blogData, query);
+  res.json({ searchResults });
+});
+
+// Error handling middleware (unchanged)
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
+
+

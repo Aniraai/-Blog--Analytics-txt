@@ -1,0 +1,7 @@
+************we need this materials before  we start writing code**********************
+
+
+mkdir blog-analytics
+cd blog-analytics
+npm init -y
+npm install express lodash axios

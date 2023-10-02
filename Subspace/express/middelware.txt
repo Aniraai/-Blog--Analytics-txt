@@ -1,0 +1,44 @@
+***********************by this u can add as many statical data u need*****************
+
+
+// Middleware to analyze blog data and provide statistics
+app.use((req, res, next) => {
+  const blogData = req.blogData;
+
+  // Custom analytics logic:
+  // Calculate the number of blog posts
+  const numPosts = blogData.posts.length;
+
+  // Calculate the total number of comments on all posts
+  const totalComments = _.sumBy(blogData.posts, 'comments.length');
+
+  // Calculate the average comments per post
+  const averageCommentsPerPost = totalComments / numPosts;
+
+  // Add statistics to the response object
+  req.analytics = {
+    numPosts,
+    totalComments,
+    averageCommentsPerPost,
+    // Add more statistics as needed
+  };
+
+  next();
+});
+
+// Blog search endpoint
+app.get('/search', (req, res) => {
+  
+  const query = req.query.q;
+  const blogData = req.blogData;
+
+  
+  
+  const searchResults = blogData.posts.filter((post) =>
+    post.title.toLowerCase().includes(query.toLowerCase()) ||
+    post.content.toLowerCase().includes(query.toLowerCase()) ||
+    post.tags.some((tag) => tag.toLowerCase().includes(query.toLowerCase()))
+  );
+
+  res.json({ searchResults });
+});

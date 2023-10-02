@@ -1,0 +1,36 @@
+****************by this logic u can add as many statical data u need*****************************
+
+// Middleware to analyze blog data and provide statistics
+app.use((req, res, next) => {
+  const blogData = req.blogData;
+
+  // Custom analytics logic:
+  // Calculate the number of blog posts
+  const numPosts = _.get(blogData, 'posts.length', 0);
+
+  // Calculate the average cnt of post
+  const posts = _.get(blogData, 'posts', []);
+  const totalWordCount = _.sumBy(posts, 'wordCount');
+  const averageWordCount = totalWordCount / numPosts;
+
+  // Add statistics to the response object
+  req.analytics = {
+    numPosts,
+    averageWordCount,
+    // Add more statistics as needed
+  };
+
+  next();
+});
+
+// Blog search endpoint
+app.get('/search', (req, res) => {
+  const query = req.query.q;
+  const blogData = req.blogData;
+  const searchResults = _.filter(blogData.posts, (post) =>
+            post.title.toLowerCase().includes(query.toLowerCase()) ||
+            post.content.toLowerCase().includes(query.toLowerCase())
+ );
+
+  res.json({ searchResults });
+});
